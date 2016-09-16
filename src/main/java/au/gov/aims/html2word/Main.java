@@ -23,6 +23,7 @@ public class Main {
     private static Logger log = Logger.getLogger(Main.class);
     public static void main(String[] argv) throws IOException, Docx4JException {
 
+        Boolean error = false;
         try {
 
             if (argv.length != 3) {
@@ -42,8 +43,13 @@ public class Main {
                 }
 
                 for (File html: listHtmlFilesRecursive(null, folder)) {
-                    File docx = new File(outputFolder, removeExtension(html.getName()) + ".docx");
-                    generate(html, docx);
+                    try {
+                        File docx = new File(outputFolder, removeExtension(html.getName()) + ".docx");
+                        generate(html, docx);
+                    } catch (Exception e) {
+                        log.error(e);
+                        error = true;
+                    }
                 }
 
 
@@ -57,7 +63,11 @@ public class Main {
             }
 
             log.info("SUCCESS!");
-            System.exit(0);
+            if (error) {
+                System.exit(1);
+            } else {
+                System.exit(0);
+            }
         } catch (Throwable e) {
             e.printStackTrace();
             log.error(e);
